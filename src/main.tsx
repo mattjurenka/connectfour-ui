@@ -8,8 +8,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <EthosConnectProvider
       ethosConfiguration={{
-        chain: Chain.SUI_DEVNET,
-        network: "https://fullnode.devnet.sui.io/",
+        chain: Chain.SUI_TESTNET,
+        network: "https://fullnode.testnet.sui.io/",
         hideEmailSignIn: true // Optional.  Defaults to false
       }}
     >
