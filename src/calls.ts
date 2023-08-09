@@ -4,7 +4,7 @@ import { accept_challenge_func, challenge_func, make_move_red_func, make_move_ye
 export const challenge = (wallet: Wallet, opponent: string, stake: number) => {
     const transactionBlock = new TransactionBlock()
     const [coin] = transactionBlock.splitCoins(transactionBlock.gas, [transactionBlock.pure(Math.round(stake * 1_000_000_000))])
-    const [revoke_cap] = transactionBlock.moveCall({
+    const [_] = transactionBlock.moveCall({
         target: challenge_func,
         arguments: [
             transactionBlock.pure(opponent, "address"),

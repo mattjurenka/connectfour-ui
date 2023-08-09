@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import './App.css'
-import { Chain, SignInButton, TransactionBlock } from 'ethos-connect'
+import { SignInButton } from 'ethos-connect'
 import { ethos } from "ethos-connect"
-import { accept_challenge_cap, challenge_func, red_participant_type, revoke_challenge_cap, sui_devnet_package, yellow_participant_type } from './globals'
-import { cache_wallet, ensure_in_cache, get_from_cache, get_slug } from './util'
+import { accept_challenge_cap, red_participant_type, revoke_challenge_cap, yellow_participant_type } from './globals'
+import { cache_wallet, ensure_in_cache, get_from_cache } from './util'
 import StubDisplay from './components/StubDisplay'
 import { accept_challenge, challenge, make_move, revoke_challenge } from './calls'
 
@@ -11,7 +11,7 @@ function App() {
   const { wallet } = ethos.useWallet();
   const [address, set_address] = useState("")
   const [stake, set_stake] = useState("")
-  const [cache_update, set_cache_update] = useState(0)
+  const [_, set_cache_update] = useState(0)
 
   if (!wallet) {
     return <SignInButton />
