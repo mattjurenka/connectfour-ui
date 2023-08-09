@@ -3,7 +3,6 @@ import './App.css'
 import { Chain, SignInButton, TransactionBlock } from 'ethos-connect'
 import { ethos } from "ethos-connect"
 import { accept_challenge_cap, challenge_func, red_participant_type, revoke_challenge_cap, sui_devnet_package, yellow_participant_type } from './globals'
-import UserDisplay from './components/UserDisplay'
 import { cache_wallet, ensure_in_cache, get_from_cache, get_slug } from './util'
 import StubDisplay from './components/StubDisplay'
 import { accept_challenge, challenge, make_move, revoke_challenge } from './calls'
@@ -12,7 +11,6 @@ function App() {
   const { wallet } = ethos.useWallet();
   const [address, set_address] = useState("")
   const [stake, set_stake] = useState("")
-  const { signer } = ethos.useProviderAndSigner();
   const [cache_update, set_cache_update] = useState(0)
 
   if (!wallet) {
@@ -33,26 +31,7 @@ function App() {
   ensure_in_cache(wallet?.contents?.objects?.filter(obj => obj.type == red_participant_type)
     ?.map(obj => obj.fields?.["game"] || "") || [])
 
-  return (
-    <>
-      <h1>Connect Four {cache_update}</h1>
-      <input 
-        onChange={e => set_address(e.target.value)}
-        value={address}
-        placeholder="Enter a sui address to challenge"
-        style={{width: "50%"}}
-      />
-      <input 
-        onChange={e => set_stake(e.target.value)}
-        value={stake}
-        placeholder="Enter an amount to challenge"
-        style={{width: "50%"}}
-      />
-      <br />
-      <button onClick={_ => challenge(wallet, address, parseFloat(stake) || 0)}>Challenge</button>
-      <button onClick={_ => wallet?.disconnect()}>Disconnect</button>
-      <h1>Incoming Challenges</h1>
-      {wallet.contents?.objects?.filter(object => object.type == accept_challenge_cap).map((object, i) => {
+  const incoming_jsx = wallet.contents?.objects?.filter(object => object.type == accept_challenge_cap).map((object, i) => {
         const challenge = object?.fields?.challenge || ""
         const cache_data = get_from_cache(challenge)
         console.log("CACHE:", cache_data)
@@ -65,9 +44,8 @@ function App() {
         } else {
           return <></>
         }
-      })}
-      <h1>Outgoing Challenges</h1>
-      {wallet.contents?.objects?.filter(object => object.type == revoke_challenge_cap).map((object, i) => {
+      })
+  const outgoing_jsx = wallet.contents?.objects?.filter(object => object.type == revoke_challenge_cap).map((object, i) => {
         const challenge = object?.fields?.challenge || ""
         const cache_data = get_from_cache(challenge)
         console.log("CACHE:", cache_data)
@@ -82,9 +60,9 @@ function App() {
         } else {
           return <></>
         }
-      })}
-      <h1>Ongoing Games</h1>
-      {wallet.contents?.objects.filter(object => object.type == yellow_participant_type || object.type == red_participant_type).map((object, x) => {
+      })
+    
+  const games_jsx = wallet.contents?.objects.filter(object => object.type == yellow_participant_type || object.type == red_participant_type).map((object, x) => {
       const game: string = object?.fields?.game as any
       const cache_data = get_from_cache(game)
       if (cache_data.status == "cached") {
@@ -115,8 +93,33 @@ function App() {
         }
         return <></>
       }
-        )}
-      </>
+        )
+
+  return (
+    <div style={{width: "100%", display: "flex", justifyContent: "center"}} >
+    <div style={{width: "64rem"}}>
+      <h1 style={{marginBottom: "1rem", marginTop: "8rem"}}>Connect Four</h1>
+      <input 
+        onChange={e => set_address(e.target.value)}
+        value={address}
+        placeholder="Enter a sui address to challenge"
+        style={{width: "16rem", padding: "0.5rem", border: "0.1rem solid black", marginRight: "1rem"}}
+      />
+      <input 
+        onChange={e => set_stake(e.target.value)}
+        value={stake}
+        placeholder="Enter an amount to challenge"
+        style={{width: "16rem", padding: "0.5rem", border: "0.1rem solid black"}}
+      />
+      <button style={{marginLeft: "1rem", padding: "0.5rem"}} onClick={_ => challenge(wallet, address, parseFloat(stake) || 0)}>Challenge</button>
+      <h3>Incoming Challenges</h3>
+      {incoming_jsx?.length ? incoming_jsx : <p style={{marginLeft: "1rem"}}>No Incoming Challenges</p>}
+      <h3>Outgoing Challenges</h3>
+      {outgoing_jsx?.length ? outgoing_jsx : <p style={{marginLeft: "1rem"}}>No Outgoing Challenges</p>}
+      <h3>Ongoing Games</h3>
+      {games_jsx}
+      </div>
+      </div>
   )
 }
 
